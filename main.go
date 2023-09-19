@@ -2,8 +2,9 @@ package table
 
 import (
 	"bytes"
-	"github.com/fatih/color"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 var MaxCellWidth = 40
@@ -50,10 +51,14 @@ func Show(headers []string, content [][]string) {
 	// 输出header
 	headerWriter.Println(tableBorder(maxWidths))
 
-	headerWriter.Printf(row(headers, maxWidths))
+	headerWriter.Printf("| %-*s |", maxWidths[0]-findNonAsciiCount(headers[0]), headers[0])
+	for i := 1; i < len(headers); i++ {
+		headerWriter.Printf(" %-*s |", maxWidths[i]-findNonAsciiCount(headers[i]), headers[i])
+	}
 
-	headerWriter.Println(tableBorder(maxWidths))
-
+	if len(headers) != 0 {
+		headerWriter.Println(tableBorder(maxWidths))
+	}
 	contentWriter := color.New(color.FgBlue)
 	for _, c := range content {
 		contentWriter.Printf(row(c, maxWidths))
@@ -138,4 +143,14 @@ func fixStr(str string, line int, size int) string {
 func howManyLine(str string, cut int) int {
 	line := len(str) / (cut + 1)
 	return line + 1
+}
+
+func findNonAsciiCount(str string) int {
+	count := 0
+	for _, r := range str {
+		if r > 255 {
+			count++
+		}
+	}
+	return count
 }
